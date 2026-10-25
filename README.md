@@ -11,11 +11,12 @@
 dotfiles/
 ├── README.md
 └── antigravity/
-    ├── install.sh        # OS 자동 판별 및 심볼릭 링크 / 설정 병합 스크립트
-    ├── config.mac.json   # macOS 전용 설정 ($HOME 경로 자동 치환 지원)
-    ├── config.wsl.json   # WSL/Linux 전용 설정 ($HOME 경로 자동 치환 지원)
+    ├── install.sh        # OS 자동 판별 및 설정 병합 스크립트
+    ├── config.json       # 🌟 공통 기본 설정 (새 기능/설정 추가 시 여기만 수정)
+    ├── config.mac.json   # macOS 전용 오버라이드 (맥 특화 설정이 필요할 때만 작성)
+    ├── config.wsl.json   # WSL/Linux 전용 오버라이드 (WSL 특화 설정이 필요할 때만 작성)
     ├── statusline.py     # 상태바 스크립트 (컨텍스트 / 서드파티 / Gemini / Argon 사용량 출력)
-    └── rules.md          # Antigravity 글로벌 에이전트 행동 지침
+    └── rules.md          # AI 에이전트(Gemini) 전역 개발 및 행동 지침
 ```
 
 ---
@@ -37,8 +38,17 @@ cd ~/dotfiles
 1. `~/.config/agy/statusline.py` 심볼릭 링크 생성 및 실행 권한 부여
 2. 현재 OS(macOS 또는 WSL/Linux) 자동 감지
 3. 기존 `~/.gemini/antigravity-cli/settings.json` 백업 생성 (`settings.json.bak`)
-4. 기존 설정(사용자 권한, 허용된 워크스페이스 등)을 보존하면서 OS별 `statusLine` 설정을 안전하게 병합(Merge)
+4. **Base + Override 병합**: `config.json`을 기본으로 읽고, OS별 오버라이드(`config.mac.json` 등)를 적용한 뒤, 기존 로컬 설정(권한, 신뢰 워크스페이스 등)을 보존하며 병합
 5. `rules.md`를 `~/.gemini/antigravity-cli/rules/global_rules.md`로 심볼릭 링크 연결
+
+---
+
+## 🤖 AI 에이전트 협업 가이드 (`rules.md`)
+
+이 저장소에는 Antigravity AI 에이전트(Gemini)의 행동 지침인 `rules.md`가 포함되어 있습니다.
+에이전트에게 기능을 추가해달라고 요청하면 에이전트가 다음 원칙에 따라 자동으로 작업합니다:
+- **단일 소스 관리**: 공통 설정은 `config.json`에 반영하고, OS 특화 설정만 분기합니다.
+- **자동 검증 의무**: 작업 후 에이전트가 직접 WSL 및 macOS 시뮬레이션 환경에서 `install.sh`와 스크립트 테스트를 자체 실행하고 결과를 보고합니다.
 
 ---
 
@@ -62,9 +72,3 @@ cd ~/dotfiles
 
 - macOS 또는 WSL / Linux
 - `python3` (표준 라이브러리만 사용하므로 추가 패키지 설치는 필요 없습니다)
-
-### 참고
-
-- 값이 없으면 `N/A`로 표시됩니다.
-- 스크립트가 계속 실패하면 `agy`가 statusline을 자동 비활성화할 수 있으니, 설정을 바꾼 뒤에는 `agy`를 재시작해 주세요.
-- 실제 payload 구조가 바뀌면 `statusline.py`의 `quota` 키 이름(`3p-5h`, `gemini-weekly` 등)을 맞춰 수정해야 합니다.
