@@ -1,0 +1,7 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "python3 $HOME/.config/agy/statusline.py",
+    "enabled": true
+  }
+}

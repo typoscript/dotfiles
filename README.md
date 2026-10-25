@@ -1,7 +1,7 @@
 # ⚙️ Dotfiles & Dev Setup
 
-내 개발 환경(macOS, AI CLI 등) 설정을 관리하기 위한 저장소입니다.
-현재는 **Antigravity CLI(`agy`) 상태바(Statusline) 커스텀 설정**을 시작으로, 추후 다양한 환경 설정들을 점진적으로 추가할 예정입니다.
+내 개발 환경(macOS, WSL/Linux, AI CLI 등) 설정을 관리하기 위한 저장소입니다.
+현재는 **Antigravity CLI(`agy`) 커스텀 설정 및 상태바(Statusline)**를 시작으로, 추후 다양한 환경 설정들을 점진적으로 추가할 예정입니다.
 
 ---
 
@@ -11,9 +11,34 @@
 dotfiles/
 ├── README.md
 └── antigravity/
+    ├── install.sh        # OS 자동 판별 및 심볼릭 링크 / 설정 병합 스크립트
+    ├── config.mac.json   # macOS 전용 설정 ($HOME 경로 자동 치환 지원)
+    ├── config.wsl.json   # WSL/Linux 전용 설정 ($HOME 경로 자동 치환 지원)
     ├── statusline.py     # 상태바 스크립트 (컨텍스트 / 서드파티 / Gemini / Argon 사용량 출력)
-    └── settings.json     # Antigravity CLI 설정 예시 (statusLine 항목 포함)
+    └── rules.md          # Antigravity 글로벌 에이전트 행동 지침
 ```
+
+---
+
+## 🚀 빠른 시작 (설치 방법)
+
+macOS와 WSL(Ubuntu 등) 모두 지원하며, OS를 자동 감지하여 설정을 안전하게 적용합니다.
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/typoscript/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+
+# 2. Antigravity 설정 설치
+./antigravity/install.sh
+```
+
+### `install.sh`가 수행하는 작업
+1. `~/.config/agy/statusline.py` 심볼릭 링크 생성 및 실행 권한 부여
+2. 현재 OS(macOS 또는 WSL/Linux) 자동 감지
+3. 기존 `~/.gemini/antigravity-cli/settings.json` 백업 생성 (`settings.json.bak`)
+4. 기존 설정(사용자 권한, 허용된 워크스페이스 등)을 보존하면서 OS별 `statusLine` 설정을 안전하게 병합(Merge)
+5. `rules.md`를 `~/.gemini/antigravity-cli/rules/global_rules.md`로 심볼릭 링크 연결
 
 ---
 
@@ -33,33 +58,9 @@ dotfiles/
 
 사용량은 `agy`가 stdin으로 넘기는 `quota` 값(`remaining_fraction`)을 기준으로 `(1 - 남은 비율) × 100`으로 계산합니다. 사용률에 따라 50% 미만은 초록, 80% 미만은 노랑, 그 이상은 빨강으로 표시됩니다.
 
-### 설치 방법
-
-1. 스크립트를 복사합니다.
-
-   ```bash
-   mkdir -p ~/.config/agy
-   cp antigravity/statusline.py ~/.config/agy/statusline.py
-   chmod +x ~/.config/agy/statusline.py
-   ```
-
-2. `~/.gemini/antigravity-cli/settings.json`의 `statusLine` 항목을 아래와 같이 설정합니다.
-
-   ```json
-   "statusLine": {
-     "type": "command",
-     "command": "python3 /Users/<사용자이름>/.config/agy/statusline.py",
-     "enabled": true
-   }
-   ```
-
-   `~`는 확장되지 않을 수 있으므로 절대 경로를 사용합니다.
-
-3. `agy`를 완전히 종료한 뒤 다시 실행합니다.
-
 ### 요구 사항
 
-- macOS
+- macOS 또는 WSL / Linux
 - `python3` (표준 라이브러리만 사용하므로 추가 패키지 설치는 필요 없습니다)
 
 ### 참고
