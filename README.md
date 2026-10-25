@@ -13,7 +13,8 @@ dotfiles/
 ├── AGENTS.md             # 🤖 AI 에이전트(Gemini) 전역 개발 및 자동 테스트 지침
 ├── install.sh            # 🚀 전체 도구 원클릭 자동 설치 스크립트
 ├── shell/                # 🐚 셸(zsh / bash) 설정 모듈
-│   ├── install.sh        # OS 감지 및 ~/.zshrc / ~/.bashrc 심볼릭 링크 연결
+│   ├── install.sh        # OS 감지 및 심볼릭 링크(~/.aliases, ~/.zshrc, ~/.bashrc) 자동 연결
+│   ├── aliases.sh        # 🌟 macOS & WSL 공통 별칭(Aliases)
 │   ├── .zshrc            # macOS zsh 설정 (경로, vi 모드, git prompt 등)
 │   └── .bashrc           # WSL/Linux bash 설정
 ├── macos/                # 🍎 macOS 전용 설정 디렉터리 (추후 Brewfile 등)

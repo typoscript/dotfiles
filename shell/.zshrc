@@ -18,22 +18,12 @@ bindkey -v
 
 
 
-# ******************************************************
-# Alias
-# ******************************************************
-# Directory navigation
-alias wd='cd ~/Desktop'
-
-# Configuration editing
-alias vrc='vi ~/.vimrc'
-
-# Git shortcuts
-alias gpm='git push origin main'
-
-# Command abbreviations & quality of life
-alias ll='ls -la'
-alias cls='clear'
-alias py='python3'
+# ==============================================================================
+# Shared Aliases
+# ==============================================================================
+if [ -f "$HOME/.aliases" ]; then
+    source "$HOME/.aliases"
+fi
 
 # ==============================================================================
 # Prompt Customization & Git Integration

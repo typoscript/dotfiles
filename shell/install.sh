@@ -52,7 +52,10 @@ link_file() {
     ln -s "$src" "$dest"
 }
 
-# OS별 기본 셸 설정 파일 연결
+# 1. 공통 별칭(Aliases) 심볼릭 링크 (~/.aliases)
+link_file "$DIR/aliases.sh" "$HOME/.aliases"
+
+# 2. OS별 기본 셸 설정 파일 연결
 if [ "$OS" = "macOS" ]; then
     # macOS: zsh가 기본 셸
     link_file "$DIR/.zshrc" "$HOME/.zshrc"
