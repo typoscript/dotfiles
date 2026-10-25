@@ -1,39 +1,40 @@
+" ******************************************************
+" Main Vim Configuration (.vimrc)
+" ******************************************************
+
 set nocompatible         " Set Vim not to be compatible with 'vi'
-
-runtime ftplugin/man.vim " Enable man.vim to allow 'man [shell command]' in vim
-
+runtime ftplugin/man.vim " Enable man.vim to allow ':Man [command]' in vim
 syntax enable
+filetype plugin indent on
 
 " ******************************************************
-" Source Files (files with no dependency)
-" ******************************************************
-source $HOME/.vim/abbrevs.vim
-source $HOME/.vim/autocmds.vim
-source $HOME/.vim/commands.vim
-source $HOME/.vim/functions.vim
-source $HOME/.vim/highlights.vim
-source $HOME/.vim/lets.vim
-source $HOME/.vim/mappings.vim
-source $HOME/.vim/set.vim
-source $HOME/.vim/snippets.vim
-source $HOME/.vim/statuslines.vim
-
-" ******************************************************
-" Plugins
-" ******************************************************
-source $HOME/.vim/plugin/compile.vim
-source $HOME/.vim/plugin/convertNumbers.vim
-source $HOME/.vim/plugin/file.vim
-source $HOME/.vim/plugin/numberSystem.vim
-source $HOME/.vim/plugin/print.vim
-
-" ******************************************************
-" WSL Clipboard Integration (safe on macOS/Linux)
+" Cross-Platform Clipboard Integration (macOS / WSL / Linux)
 " ******************************************************
 let s:clip = '/mnt/c/Windows/System32/clip.exe'
+
 if executable(s:clip)
+  " WSL Environment
+  set clipboard=unnamed
   augroup WSLYank
     autocmd!
     autocmd TextYankPost * call system('echo '.shellescape(join(v:event.regcontents, "\n")).' | '.s:clip)
   augroup END
+elseif has('mac') || has('macunix') || system('uname -s') =~? 'Darwin'
+  " macOS Environment (sync with pbcopy/pbpaste)
+  set clipboard=unnamed,unnamedplus
+else
+  " Linux (X11 / Wayland)
+  set clipboard^=unnamed,unnamedplus
 endif
+
+" ******************************************************
+" Load Modular Configurations
+" ******************************************************
+source $HOME/.vim/options.vim
+source $HOME/.vim/functions.vim
+source $HOME/.vim/keymaps.vim
+source $HOME/.vim/ui.vim
+source $HOME/.vim/autocmds.vim
+
+" Note: Files in $HOME/.vim/plugin/*.vim are automatically
+" loaded by Vim's runtimepath on startup (no manual source needed).
