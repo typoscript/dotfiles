@@ -11,6 +11,13 @@
 dotfiles/
 ├── README.md             # 저장소 가이드 및 단축키/기능 문서
 ├── AGENTS.md             # 🤖 AI 에이전트(Gemini) 전역 개발 및 자동 테스트 지침
+├── install.sh            # 🚀 전체 도구 원클릭 자동 설치 스크립트
+├── shell/                # 🐚 셸(zsh / bash) 설정 모듈
+│   ├── install.sh        # OS 감지 및 ~/.zshrc / ~/.bashrc 심볼릭 링크 연결
+│   ├── .zshrc            # macOS zsh 설정 (경로, vi 모드, git prompt 등)
+│   └── .bashrc           # WSL/Linux bash 설정
+├── macos/                # 🍎 macOS 전용 설정 디렉터리 (추후 Brewfile 등)
+├── wsl/                  # 🐧 WSL 전용 설정 디렉터리 (추후 wsl.conf 등)
 ├── antigravity/          # Antigravity CLI 설정 및 상태바
 │   ├── install.sh        # OS 자동 판별 및 설정 병합 스크립트
 │   ├── config.json       # 🌟 공통 기본 설정 (새 기능/설정 추가 시 여기만 수정)
@@ -44,11 +51,13 @@ macOS와 WSL(Ubuntu 등) 모두 지원하며, OS를 자동 감지하여 기존 �
 git clone https://github.com/typoscript/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 
-# 2. Antigravity 설정 설치
-./antigravity/install.sh
+# 2. 전체 원클릭 자동 설치 (추천)
+./install.sh
 
-# 3. Vim 설정 설치 (심볼릭 링크 연결)
-./vim/install.sh
+# 또는 원하는 모듈만 개별 설치 가능:
+# ./shell/install.sh        # 셸 설정 (macOS: ~/.zshrc, WSL: ~/.bashrc)
+# ./vim/install.sh          # Vim & IdeaVim 설정
+# ./antigravity/install.sh  # Antigravity CLI 상태바 및 설정
 ```
 
 ---
@@ -118,9 +127,30 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 
 ---
 
+## 🐚 Shell 설정 가이드 (`shell/`)
+
+macOS(zsh)와 WSL/Linux(bash) 설정을 분리하여 관리하며, OS 감지를 통해 적절한 셸 설정 파일이 홈 디렉터리에 심볼릭 링크로 연결됩니다.
+
+### 주요 별칭 (Aliases)
+
+| 별칭 | 명령어 | 설명 |
+| :--- | :--- | :--- |
+| `ll` | `ls -la` | 숨김 파일 포함 전체 목록 상세 출력 |
+| `cls` | `clear` | 터미널 화면 정리 |
+| `py` | `python3` | python3 실행 단축어 |
+| `gpm` | `git push origin main` | git main 브랜치 푸시 |
+| `wd` | `cd ~/Desktop` | 데스크톱 디렉터리로 이동 (macOS) |
+| `vrc` | `vi ~/.vimrc` | Vim 설정 파일 열기 |
+
+### 주요 특징
+- **Vi 키바인딩 모드**: macOS zsh에서 터미널 커맨드라인 Vi 편집 모드 활성화 (`bindkey -v`)
+- **Git 프롬프트 연동**: `vcs_info`를 이용해 현재 작업 디렉터리의 활성 git 브랜치 명을 우측 프롬프트(RPROMPT)에 실시간 표시
+
+---
+
 ## 🤖 AI 에이전트(Gemini) 협업 지침
 
-새로운 설정이나 기능을 추가할 때 모든 AI 에이전트는 [AGENTS.md](file:///home/juno/dotfiles/AGENTS.md)를 참조하여 개발합니다:
+새로운 설정이나 기능을 추가할 때 모든 AI 에이전트는 [AGENTS.md](./AGENTS.md)를 참조하여 개발합니다:
 1. **단일 소스 원칙**: 공통 설정 우선, 플랫폼 차이점만 오버라이드
 2. **자체 테스트 의무**: 기능 추가 후 WSL 및 macOS 가상 시뮬레이션 환경에서 자동 검증
 3. **문서 동기화**: 추가된 기능은 반드시 `README.md`에 단축키 및 사용법을 문서화
