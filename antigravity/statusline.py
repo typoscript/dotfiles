@@ -12,6 +12,7 @@ agy가 stdin으로 넘기는 JSON의 quota는 키가 "3p-5h", "gemini-weekly" �
 
 import sys
 import json
+from datetime import datetime, timezone
 
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -35,6 +36,50 @@ def format_tokens(num):
 
 def color_for(pct):
     return GREEN if pct < 50 else (YELLOW if pct < 80 else RED)
+
+
+def format_time_left(seconds):
+    """남은 초(seconds)를 인간이 읽기 편한 형식으로 변환 (예: 3h 20m, 4d 18h, 45m)"""
+    if seconds is None:
+        return ""
+    try:
+        sec = int(seconds)
+    except (ValueError, TypeError):
+        return ""
+    if sec <= 0:
+        return ""
+
+    days = sec // 86400
+    hours = (sec % 86400) // 3600
+    minutes = (sec % 3600) // 60
+
+    if days > 0:
+        return f"{days}d {hours}h"
+    if hours > 0:
+        return f"{hours}h {minutes}m"
+    if minutes > 0:
+        return f"{minutes}m"
+    return "<1m"
+
+
+def format_label(label, quota_entry):
+    """라벨(5hr, Weekly 등) 옆에 초기화 잔여 시간을 괄호로 추가 (예: 5hr (3h 20m): )"""
+    if not isinstance(quota_entry, dict):
+        return f"{label}:"
+
+    sec = quota_entry.get("reset_in_seconds")
+    if sec is None and quota_entry.get("reset_time"):
+        try:
+            rt = quota_entry.get("reset_time")
+            dt = datetime.fromisoformat(rt.replace("Z", "+00:00"))
+            sec = int((dt - datetime.now(timezone.utc)).total_seconds())
+        except Exception:
+            sec = None
+
+    time_str = format_time_left(sec)
+    if time_str:
+        return f"{label} ({time_str}):"
+    return f"{label}:"
 
 
 def format_used(quota_entry):
@@ -69,18 +114,23 @@ def main():
     quota = payload.get("quota") or {}
 
     # 2행: 서드파티
+    q_3p_5h = quota.get("3p-5h")
+    q_3p_w = quota.get("3p-weekly")
     line2 = (
         f"{MAGENTA}{BOLD}[3rd-Party]{RESET} "
-        f"5hr: {format_used(quota.get('3p-5h'))}  |  "
-        f"Weekly: {format_used(quota.get('3p-weekly'))}"
+        f"{format_label('5hr', q_3p_5h)} {format_used(q_3p_5h)}  |  "
+        f"{format_label('Weekly', q_3p_w)} {format_used(q_3p_w)}"
     )
 
     # 3행: 제미나이 + 아르곤
+    q_gem_5h = quota.get("gemini-5h")
+    q_gem_w = quota.get("gemini-weekly")
+    q_argon_w = quota.get("gemini-argon-wtu-weekly")
     line3 = (
         f"{BLUE}{BOLD}[Gemini]{RESET} "
-        f"5hr: {format_used(quota.get('gemini-5h'))}  |  "
-        f"Weekly: {format_used(quota.get('gemini-weekly'))}  |  "
-        f"{YELLOW}{BOLD}[Argon]{RESET} Weekly: {format_used(quota.get('gemini-argon-wtu-weekly'))}"
+        f"{format_label('5hr', q_gem_5h)} {format_used(q_gem_5h)}  |  "
+        f"{format_label('Weekly', q_gem_w)} {format_used(q_gem_w)}  |  "
+        f"{YELLOW}{BOLD}[Argon]{RESET} {format_label('Weekly', q_argon_w)} {format_used(q_argon_w)}"
     )
 
     sys.stdout.write(f"{line1}\n{line2}\n{line3}\n")
