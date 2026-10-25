@@ -95,8 +95,15 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 
 ---
 
-## 🖥️ Antigravity CLI Statusline
+## 🖥️ Antigravity CLI 설정 및 Statusline
 
+### 1. 완전 자동 승인 (Auto-approve) 모드
+프롬프트 실행 시마다 반복되는 터미널 명령어 실행 수락 팝업을 건너뛰고 자율적으로 실행되도록 설정되어 있습니다:
+- `toolPermission: "always-proceed"`: 도구 실행 권한 프롬프트 자동 패스
+- `agentMode: "auto"`: 자율 실행 모드
+- `permissions.allow: ["command(*)"]`: 터미널 명령어 전체 자동 승인
+
+### 2. Statusline (상태바)
 `agy` 하단에 토큰 및 쿼터 현황(초기화 잔여 시간 포함)을 3줄로 표시합니다.
 
 ```text

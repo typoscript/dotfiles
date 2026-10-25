@@ -1,4 +1,11 @@
 {
+  "toolPermission": "always-proceed",
+  "agentMode": "auto",
+  "permissions": {
+    "allow": [
+      "command(*)"
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "python3 $HOME/.config/agy/statusline.py",
