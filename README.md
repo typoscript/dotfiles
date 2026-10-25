@@ -23,7 +23,7 @@ dotfiles/
 │   ├── config.json       # 🌟 공통 기본 설정 (새 기능/설정 추가 시 여기만 수정)
 │   ├── config.mac.json   # macOS 전용 오버라이드
 │   ├── config.wsl.json   # WSL/Linux 전용 오버라이드
-│   ├── statusline.py     # 상태바 스크립트 (컨텍스트 / 서드파티 / Gemini / Argon 사용량)
+│   ├── statusline.py     # 상태바 스크립트 (컨텍스트 및 모델 / 서드파티 / Gemini / Argon 사용량)
 │   └── rules.md          # Antigravity 전역 룰
 └── vim/                  # Vim & IdeaVim 통합 설정
     ├── install.sh        # ~/.vimrc, ~/.ideavimrc, ~/.vim 심볼릭 링크 자동 생성
@@ -116,12 +116,12 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 `agy` 하단에 토큰 및 쿼터 현황(초기화 잔여 시간 포함)을 3줄로 표시합니다.
 
 ```text
-[Context] 49.4k / 1.0M (4.7%)
+[Context] 49.4k / 1.0M (4.7%)  |  Gemini 3.8 Flash (Medium)
 [3rd-Party] 5hr (4h 41m): 0.0%  |  Weekly (4d 18h): 98.4%
 [Gemini] 5hr (4h 0m): 3.4%  |  Weekly (4d 20h): 5.1%  |  [Argon] Weekly (4d 22h): 92.3%
 ```
 
-- **1행**: 현재 컨텍스트 사용량 (사용 토큰 / 전체 윈도우 크기 및 %)
+- **1행**: 현재 컨텍스트 사용량 (사용 토큰 / 전체 윈도우 크기 및 %) 및 현재 활성화된 모델 명시
 - **2행**: 서드파티 모델의 5시간 사용량 (초기화 잔여 시간), 주간 사용량 (초기화 잔여 시간)
 - **3행**: Gemini의 5시간 및 주간 사용량 (초기화 잔여 시간), Argon 주간 사용량 (초기화 잔여 시간)
 

@@ -2,7 +2,7 @@
 """
 Antigravity CLI (agy) Custom Statusline Script
 ---------------------------------------------
-첫째 줄: 컨텍스트 사용량 (context_window)
+첫째 줄: 컨텍스트 사용량 (context_window) 및 현재 모델 (model)
 둘째 줄: 서드파티 (3p) 5hr, weekly 사용량
 셋째 줄: 제미나이 (gemini) 5hr, weekly 사용량 및 Argon 주간 사용량
 
@@ -100,7 +100,7 @@ def main():
     except json.JSONDecodeError:
         payload = {}
 
-    # 1행: 컨텍스트
+    # 1행: 컨텍스트 및 현재 모델
     ctx = payload.get("context_window") or {}
     used_pct = float(ctx.get("used_percentage") or 0)
     size = int(ctx.get("context_window_size") or 0)
@@ -110,6 +110,17 @@ def main():
         f"{format_tokens(used_tokens)} / {format_tokens(size)} "
         f"({color_for(used_pct)}{used_pct:.1f}%{RESET})"
     )
+
+    model_obj = payload.get("model") or {}
+    if isinstance(model_obj, dict):
+        model_name = model_obj.get("display_name") or model_obj.get("id") or ""
+    elif isinstance(model_obj, str):
+        model_name = model_obj
+    else:
+        model_name = ""
+
+    if model_name:
+        line1 += f"  |  {model_name}"
 
     quota = payload.get("quota") or {}
 
