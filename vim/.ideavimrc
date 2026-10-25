@@ -1,0 +1,9 @@
+" This is .vimrc file for IdeaVim plugin in IntelliJ
+inoremap jk <esc>
+inoremap a' <esc>A
+nnoremap ; :
+cnoremap jk <esc>
+
+inoremap sysout System.out.println();<Esc>hi
+
+set clipboard=unnamed

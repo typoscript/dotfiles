@@ -10,13 +10,18 @@
 ```text
 dotfiles/
 ├── README.md
-└── antigravity/
-    ├── install.sh        # OS 자동 판별 및 설정 병합 스크립트
-    ├── config.json       # 🌟 공통 기본 설정 (새 기능/설정 추가 시 여기만 수정)
-    ├── config.mac.json   # macOS 전용 오버라이드 (맥 특화 설정이 필요할 때만 작성)
-    ├── config.wsl.json   # WSL/Linux 전용 오버라이드 (WSL 특화 설정이 필요할 때만 작성)
-    ├── statusline.py     # 상태바 스크립트 (컨텍스트 / 서드파티 / Gemini / Argon 사용량 출력)
-    └── rules.md          # AI 에이전트(Gemini) 전역 개발 및 행동 지침
+├── antigravity/
+│   ├── install.sh        # OS 자동 판별 및 설정 병합 스크립트
+│   ├── config.json       # 🌟 공통 기본 설정 (새 기능/설정 추가 시 여기만 수정)
+│   ├── config.mac.json   # macOS 전용 오버라이드 (맥 특화 설정이 필요할 때만 작성)
+│   ├── config.wsl.json   # WSL/Linux 전용 오버라이드 (WSL 특화 설정이 필요할 때만 작성)
+│   ├── statusline.py     # 상태바 스크립트 (컨텍스트 / 서드파티 / Gemini / Argon 사용량 출력)
+│   └── rules.md          # AI 에이전트(Gemini) 전역 개발 및 행동 지침
+└── vim/
+    ├── install.sh        # Vim 및 IdeaVim 설정 심볼릭 링크 설치 스크립트
+    ├── .vimrc            # Vim 기본 설정 (WSL/macOS 클립보드 호환)
+    ├── .ideavimrc        # IntelliJ / JetBrains IdeaVim 설정
+    └── .vim/             # 모듈화된 Vim 설정 (mappings, plugin, snippets 등)
 ```
 
 ---
@@ -32,6 +37,9 @@ cd ~/dotfiles
 
 # 2. Antigravity 설정 설치
 ./antigravity/install.sh
+
+# 3. Vim 설정 설치 (심볼릭 링크 연결)
+./vim/install.sh
 ```
 
 ### `install.sh`가 수행하는 작업
