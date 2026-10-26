@@ -5,11 +5,13 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "🚀 [Shell Setup] Initializing installation..."
 
-# OS 감지 (WSL 우선 감지 -> macOS -> Linux)
-if grep -qi microsoft /proc/version 2>/dev/null || [[ -n "$WSL_DISTRO_NAME" ]] || [[ -n "$WSLENV" ]]; then
-    OS="WSL"
-elif [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname -s)" == "Darwin" ]]; then
+# OS 감지 (macOS -> WSL -> Windows(Git Bash) -> Linux)
+if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname -s)" == "Darwin" ]]; then
     OS="macOS"
+elif grep -qi microsoft /proc/version 2>/dev/null || [[ -n "$WSL_DISTRO_NAME" ]] || [[ -n "$WSLENV" ]]; then
+    OS="WSL"
+elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+    OS="Windows"
 else
     OS="Linux"
 fi
@@ -21,6 +23,8 @@ get_real_path() {
     local target="$1"
     if command -v python3 >/dev/null 2>&1; then
         python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$target" 2>/dev/null || true
+    elif command -v python >/dev/null 2>&1; then
+        python -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$target" 2>/dev/null || true
     else
         readlink -f "$target" 2>/dev/null || readlink "$target" 2>/dev/null || true
     fi

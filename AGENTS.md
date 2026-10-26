@@ -1,6 +1,6 @@
 # 🤖 Dotfiles AI Agent Guidelines (AGENTS.md)
 
-이 문서는 어떤 머신(macOS, WSL, Linux 등)에서든 AI 에이전트(Gemini 등)가 이 저장소에 새로운 설정을 추가하거나 기존 기능을 수정할 때 반드시 준수해야 하는 **저장소 전역 개발 가이드라인**입니다.
+이 문서는 어떤 머신(macOS, WSL, Linux, Windows 등)에서든 AI 에이전트(Gemini 등)가 이 저장소에 새로운 설정을 추가하거나 기존 기능을 수정할 때 반드시 준수해야 하는 **저장소 전역 개발 가이드라인**입니다.
 
 ---
 
@@ -15,11 +15,12 @@ dotfiles/<tool>/
 └── 설정 파일들        # 예: .zshrc, .gitconfig, tmux.conf 등
 ```
 
-### `install.sh` 필수 요구조건:
-1. **멱등성(Idempotent)**: 여러 번 실행해도 안전해야 하며, 이미 심볼릭 링크가 걸려 있다면 건너뛰거나 갱신합니다.
+### `install.sh` 및 `install.ps1` 필수 요구조건:
+1. **멱등성(Idempotent)**: 여러 번 실행해도 안전해야 하며, 이미 심볼릭 링크나 파일이 설정되어 있다면 건너뛰거나 갱신합니다.
 2. **기존 파일 백업**: 대상 경로에 기존 설정이 파일이나 디렉터리로 존재하면 `${dest}.bak`으로 백업합니다.
-3. **OS 자동 감지**: macOS(`Darwin`), WSL(`microsoft`), Linux를 구분하여 플랫폼별 차이를 지원합니다.
-4. **실행 권한**: `chmod +x install.sh`를 부여합니다.
+3. **크로스 플랫폼 지원**: macOS(`Darwin`), WSL(`microsoft`), Linux, Windows(`Windows_NT`)를 구분하여 플랫폼별 차이를 지원합니다.
+4. **Windows 권한 안전성**: Windows에서는 관리자 권한 없는 환경을 고려해 심볼릭 링크 실패 시 디렉터리는 Junction, 파일은 Copy로 안전하게 Fallback 처리합니다.
+5. **JSON 경로 이스케이프 주의**: Windows 경로(`C:\Users\...`)를 JSON 치환 시 슬래시(`/`)로 정규화하거나 이스케이프(`\\`) 처리하여 JSON 파싱 에러를 방지합니다.
 
 ---
 
@@ -32,15 +33,19 @@ dotfiles/<tool>/
 
 ---
 
-## 3. 🧪 양대 OS 자동 검증 의무 (Mandatory Self-Testing)
+## 3. 🧪 크로스 플랫폼 자동 검증 의무 (Mandatory Self-Testing)
 
 어떤 기능이나 설정을 추가/수정한 뒤에는 **사용자가 요청하지 않아도** 반드시 아래 테스트를 에이전트 스스로 실행하고 결과를 보고해야 합니다:
 
-1. **WSL / Linux 환경 테스트**:
+1. **Windows 환경 테스트 (CMD / PowerShell)**:
+   - `install.bat` 또는 `install.ps1` 실행 검증
+   - 심볼릭 링크 / Junction / Copy 생성 확인
+   - `statusline.py`의 Windows 파이프(UTF-8 BOM 및 cp949 인코딩) 입출력 검증
+2. **WSL / Linux 환경 테스트**:
    - `install.sh` 실행 및 심볼릭 링크 생성 확인
    - 문법 오류(Syntax error) 검증 (예: `vim -e -s -c "q"`, `python3 -m py_compile`, `bash -n`)
-2. **macOS 환경 시뮬레이션 테스트**:
-   - 아래 모의 환경 실행을 통해 macOS 분기 및 경로 치환이 정상 동작하는지 직접 검증:
+3. **macOS 환경 시뮬레이션 테스트**:
+   - 모의 환경 실행을 통해 macOS 분기 및 경로 치환이 정상 동작하는지 직접 검증:
      ```bash
      TEST_DIR=$(mktemp -d)
      HOME="$TEST_DIR" OSTYPE="darwin23.0.0" ./<tool>/install.sh

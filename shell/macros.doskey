@@ -1,0 +1,6 @@
+wd=cd /d "%USERPROFILE%\Desktop"
+vrc=vim "%USERPROFILE%\.vimrc"
+gpm=git push origin main $*
+ll=dir /a /o:gn $*
+cls=cls
+py=python $*

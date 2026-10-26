@@ -94,9 +94,21 @@ def format_used(quota_entry):
 
 
 def main():
-    raw = sys.stdin.read() if not sys.stdin.isatty() else ""
     try:
-        payload = json.loads(raw) if raw.strip() else {}
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+    raw = ""
+    try:
+        if not sys.stdin.isatty():
+            raw = sys.stdin.buffer.read().decode("utf-8-sig", errors="replace").strip()
+    except Exception:
+        raw = ""
+
+    try:
+        payload = json.loads(raw) if raw else {}
     except json.JSONDecodeError:
         payload = {}
 

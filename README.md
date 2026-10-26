@@ -1,6 +1,6 @@
 # ⚙️ Dotfiles & Dev Setup
 
-내 개발 환경(macOS, WSL/Linux, AI CLI, Vim 등) 설정을 관리하기 위한 개인 저장소입니다.
+내 개발 환경(macOS, WSL/Linux, Windows, AI CLI, Vim 등) 설정을 관리하기 위한 개인 저장소입니다.
 어떤 컴퓨터(Mac, WSL 등)에서든 `git clone` 후 각 도구의 `install.sh`만 실행하면 즉시 동일한 개발 환경이 세팅됩니다.
 
 ---
@@ -11,23 +11,32 @@
 dotfiles/
 ├── README.md             # 저장소 가이드 및 단축키/기능 문서
 ├── AGENTS.md             # 🤖 AI 에이전트(Gemini) 전역 개발 및 자동 테스트 지침
-├── install.sh            # 🚀 전체 도구 원클릭 자동 설치 스크립트
-├── shell/                # 🐚 셸(zsh / bash) 설정 모듈
-│   ├── install.sh        # OS 감지 및 심볼릭 링크(~/.aliases, ~/.zshrc, ~/.bashrc) 자동 연결
+├── install.sh            # 🚀 macOS / WSL / Linux 원클릭 자동 설치 스크립트
+├── install.bat           # 🚀 Windows CMD 원클릭 자동 설치 배치 파일
+├── install.ps1           # 🚀 Windows PowerShell 전체 설치 스크립트
+├── shell/                # 🐚 셸(zsh / bash / PowerShell / CMD) 설정 모듈
+│   ├── install.sh        # macOS/WSL 심볼릭 링크 연결
+│   ├── install.ps1       # Windows PowerShell $PROFILE & CMD doskey 매크로 자동 등록
 │   ├── aliases.sh        # 🌟 macOS & WSL 공통 별칭(Aliases)
+│   ├── aliases.ps1       # 🌟 Windows PowerShell 별칭
+│   ├── macros.doskey     # 🌟 Windows CMD doskey 매크로
 │   ├── .zshrc            # macOS zsh 설정 (경로, vi 모드, git prompt 등)
 │   └── .bashrc           # WSL/Linux bash 설정
-├── macos/                # 🍎 macOS 전용 설정 디렉터리 (추후 Brewfile 등)
-├── wsl/                  # 🐧 WSL 전용 설정 디렉터리 (추후 wsl.conf 등)
+├── macos/                # 🍎 macOS 전용 설정 디렉터리
+├── wsl/                  # 🐧 WSL 전용 설정 디렉터리
 ├── antigravity/          # Antigravity CLI 설정 및 상태바
-│   ├── install.sh        # OS 자동 판별 및 설정 병합 스크립트
+│   ├── install.sh        # macOS/WSL 설치 및 설정 병합 스크립트
+│   ├── install.ps1       # Windows 설치 및 settings.json 병합 스크립트
+│   ├── merge_settings.py # 🌟 크로스 플랫폼 settings.json 3단계 Deep Merge 유틸리티
 │   ├── config.json       # 🌟 공통 기본 설정 (새 기능/설정 추가 시 여기만 수정)
 │   ├── config.mac.json   # macOS 전용 오버라이드
 │   ├── config.wsl.json   # WSL/Linux 전용 오버라이드
+│   ├── config.win.json   # Windows 전용 오버라이드 (python3 -> python)
 │   ├── statusline.py     # 상태바 스크립트 (컨텍스트 및 모델 / 서드파티 / Gemini / Argon 사용량)
 │   └── rules.md          # Antigravity 전역 룰
 └── vim/                  # Vim & IdeaVim 통합 설정
-    ├── install.sh        # ~/.vimrc, ~/.ideavimrc, ~/.vim 심볼릭 링크 자동 생성
+    ├── install.sh        # macOS/WSL 심볼릭 링크 자동 생성
+    ├── install.ps1       # Windows 홈 디렉터리 링크/복사/정션 생성
     ├── .vimrc            # Vim 메인 진입점 (OS 감지 클립보드 연동)
     ├── .ideavimrc        # IntelliJ / JetBrains IdeaVim 전용 설정
     └── .vim/
@@ -45,20 +54,36 @@ dotfiles/
 
 ## 🚀 빠른 시작 (설치 방법)
 
-macOS와 WSL(Ubuntu 등) 모두 지원하며, OS를 자동 감지하여 기존 설정을 백업한 뒤 안전하게 설치합니다.
+macOS, WSL(Linux), Windows(CMD/PowerShell)를 모두 지원하며, OS를 자동 감지하여 기존 설정을 백업한 뒤 안전하게 설치합니다.
+
+### 🍎 macOS & 🐧 WSL / Linux
 
 ```bash
 # 1. 저장소 클론
 git clone https://github.com/typoscript/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 
-# 2. 전체 원클릭 자동 설치 (추천)
+# 2. 전체 원클릭 자동 설치
 ./install.sh
 
 # 또는 원하는 모듈만 개별 설치 가능:
 # ./shell/install.sh        # 셸 설정 (macOS: ~/.zshrc, WSL: ~/.bashrc)
 # ./vim/install.sh          # Vim & IdeaVim 설정
 # ./antigravity/install.sh  # Antigravity CLI 상태바 및 설정
+```
+
+### 🪟 Windows (CMD 또는 PowerShell)
+
+```cmd
+:: 1. 저장소 클론 및 이동
+git clone https://github.com/typoscript/dotfiles.git %USERPROFILE%\dotfiles
+cd /d %USERPROFILE%\dotfiles
+
+:: 2. 전체 원클릭 자동 설치 (CMD 실행 시)
+install.bat
+
+:: 또는 PowerShell에서 실행 시:
+:: powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
 ---

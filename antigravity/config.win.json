@@ -1,0 +1,8 @@
+{
+  "_comment": "Windows 전용 오버라이드 설정 (python3 -> python)",
+  "statusLine": {
+    "type": "command",
+    "command": "python $HOME/.config/agy/statusline.py",
+    "enabled": true
+  }
+}
