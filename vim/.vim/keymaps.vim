@@ -5,7 +5,9 @@
 " Normal / Insert Mode Navigation
 inoremap jk <Esc>
 inoremap a' <Esc><S-a>
-noremap! qq <C-c>
+
+" Cancel command in Command-line Mode
+cnoremap qq <C-c>
 
 " Delete line without storing into default register
 nnoremap d_ "_dd
@@ -54,49 +56,118 @@ vnoremap ; :
 cnoremap vt vert
 vnoremap <Leader><Leader> <Esc>
 
-" Command-line Abbreviations (abbrevs.vim)
-cnorea vrc tabe ~/.vimrc
-cnorea vp  ~/.vim/
-cnorea te  tabe
-cnorea tv  tabe ~/.vimrc
-cnorea th  tab help
+" Command-line Abbreviations (Only expand at command position)
+function! s:cmdAlias(from, to)
+	return (getcmdtype() ==# ':' && getcmdline() ==# a:from) ? a:to : a:from
+endfunction
+
+cnoreabbrev <expr> vrc <SID>cmdAlias('vrc', 'tabe ~/.vimrc')
+cnoreabbrev <expr> tv  <SID>cmdAlias('tv', 'tabe ~/.vimrc')
+cnoreabbrev <expr> th  <SID>cmdAlias('th', 'tab help')
+cnoreabbrev <expr> vp  (getcmdtype() ==# ':' && getcmdline() =~# '\<vp$') ? '~/.vim/' : 'vp'
 
 " ******************************************************
-" Code Snippets (snippets.vim)
+" Code Snippets (snippets.vim) - Portable relative path
 " ******************************************************
-nnoremap snp.html :r $HOME/.vim/snippets/skeleton.html<CR>
-nnoremap snp.java :r $HOME/.vim/snippets/skeleton.java<CR>
-nnoremap snp.rfc  :r $HOME/.vim/snippets/skeleton-react.js<CR>
+let s:snip_dir = expand('<sfile>:p:h') . '/snippets'
+execute 'nnoremap snp.html :r ' . s:snip_dir . '/skeleton.html<CR>'
+execute 'nnoremap snp.java :r ' . s:snip_dir . '/skeleton.java<CR>'
+execute 'nnoremap snp.rfc  :r ' . s:snip_dir . '/skeleton-react.js<CR>'
 
 " ******************************************************
 " Brackets and Quotes Surrounding
 " ******************************************************
+" Surround inner word (ciw)
 nnoremap sw" ciw""<Esc>hpl
 nnoremap sw' ciw''<Esc>hpl
 nnoremap sw( ciw()<Esc>hpl
 nnoremap sw[ ciw[]<Esc>hpl
 nnoremap sw{ ciw{}<Esc>hpl
 
-nnoremap "aw caw""<Esc>hpl
-nnoremap 'aw caw''<Esc>hpl
-nnoremap (aw caw()<Esc>hpl
-nnoremap [aw caw[]<Esc>hpl
-nnoremap {aw caw{}<Esc>hpl
+" Surround a word with trailing whitespace (caw) - replaces "aw/'aw to prevent hijacking registers/marks
+nnoremap sa" caw""<Esc>hpl
+nnoremap sa' caw''<Esc>hpl
+nnoremap sa( caw()<Esc>hpl
+nnoremap sa[ caw[]<Esc>hpl
+nnoremap sa{ caw{}<Esc>hpl
 
-" Auto indent curly bracket on enter
-inoremap {<Enter> {<Enter><Enter>}<Up><Tab>
+" ******************************************************
+" Auto Close Pairs & Smart Brackets (Zero Latency)
+" ******************************************************
+function! s:closePair(char)
+	let l:line = getline('.')
+	let l:col = col('.')
+	if l:line[l:col - 1] == a:char
+		return "\<Right>"
+	else
+		return a:char
+	endif
+endfunction
 
-" Auto close pairs
-inoremap " ""<Left>
-inoremap ' ''<Left>
-inoremap ` ``<Left>
-inoremap ( ()<Left>
-inoremap [ []<Left>
-inoremap { {}<Left>
+function! s:quotePair(char)
+	let l:line = getline('.')
+	let l:col = col('.')
+	let l:nextChar = l:line[l:col - 1]
+	if l:nextChar == a:char
+		return "\<Right>"
+	" Do not auto-pair apostrophes in English contractions (e.g., don't, it's)
+	elseif a:char == "'" && l:col > 1 && l:line[l:col - 2] =~# '\w'
+		return "'"
+	else
+		return a:char . a:char . "\<Left>"
+	endif
+endfunction
 
-inoremap "" "
-inoremap '' '
-inoremap `` `
-inoremap () (
-inoremap [] [
-inoremap {} {
+function! s:backspacePair()
+	let l:line = getline('.')
+	let l:col = col('.')
+	if l:col > 1
+		let l:prevChar = l:line[l:col - 2]
+		let l:nextChar = l:line[l:col - 1]
+		if (l:prevChar == '(' && l:nextChar == ')') ||
+		 \ (l:prevChar == '[' && l:nextChar == ']') ||
+		 \ (l:prevChar == '{' && l:nextChar == '}') ||
+		 \ (l:prevChar == '"' && l:nextChar == '"') ||
+		 \ (l:prevChar == "'" && l:nextChar == "'") ||
+		 \ (l:prevChar == '`' && l:nextChar == '`')
+			return "\<Right>\<BS>\<BS>"
+		endif
+	endif
+	return "\<BS>"
+endfunction
+
+function! s:smartEnter()
+	let l:line = getline('.')
+	let l:col = col('.')
+	if l:col > 1
+		let l:prevChar = l:line[l:col - 2]
+		let l:nextChar = l:line[l:col - 1]
+		if (l:prevChar == '{' && l:nextChar == '}') ||
+		 \ (l:prevChar == '(' && l:nextChar == ')') ||
+		 \ (l:prevChar == '[' && l:nextChar == ']')
+			return "\<CR>\<Esc>O"
+		endif
+	endif
+	return "\<CR>"
+endfunction
+
+" Opening pairs
+inoremap <silent> ( ()<Left>
+inoremap <silent> [ []<Left>
+inoremap <silent> { {}<Left>
+
+" Closing pairs (step-over if already present)
+inoremap <silent> ) <C-r>=<SID>closePair(')')<CR>
+inoremap <silent> ] <C-r>=<SID>closePair(']')<CR>
+inoremap <silent> } <C-r>=<SID>closePair('}')<CR>
+
+" Quotes (auto-pair or step-over)
+inoremap <silent> " <C-r>=<SID>quotePair('"')<CR>
+inoremap <silent> ' <C-r>=<SID>quotePair("'")<CR>
+inoremap <silent> ` <C-r>=<SID>quotePair('`')<CR>
+
+" Smart Enter between bracket pairs
+inoremap <silent> <CR> <C-r>=<SID>smartEnter()<CR>
+
+" Smart Backspace (delete pair together)
+inoremap <silent> <BS> <C-r>=<SID>backspacePair()<CR>
