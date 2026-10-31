@@ -1,24 +1,27 @@
 " ******************************************************
 " Show - Echo Value
 " ******************************************************
-function ShowCurrentFilePath()
-	execute ":redir @+ | echo ".string(expand('%:p')). " | redir END"
+function! ShowCurrentFilePath()
+	let @+ = expand('%:p')
+	echo expand('%:p')
 endfunction
 	
 " ******************************************************
 " Get - Return Result Value
 " ******************************************************
-function GetFileSize()
-	return getfsize(expand(@%))
+function! GetFileSize()
+	let l:file = expand('%')
+	return empty(l:file) ? 0 : getfsize(l:file)
 endfunction
 
 " ******************************************************
 " Copy - Copy Result to Clipboard
 " ******************************************************
-function CopyCurrentFileName()
-    execute ":let @+ = fnamemodify(expand('%'), ':t')"
+function! CopyCurrentFileName()
+	let @+ = fnamemodify(expand('%'), ':t')
+	echo @+
 endfunction
 
-command! ShowCurrentFilePath :call ShowCurrentFilePath()
-command! GetFileSize :call GetFileSize()
-command! CopyCurrentFileName :call CopyCurrentFileName()
+command! ShowCurrentFilePath call ShowCurrentFilePath()
+command! GetFileSize call GetFileSize()
+command! CopyCurrentFileName call CopyCurrentFileName()

@@ -1,4 +1,4 @@
-function PrtNumLineByLine(...)
+function! PrtNumLineByLine(...)
 	if a:0 == 1
 		exe ":put=range(1,"a:1")"
 	elseif a:0 == 2
@@ -8,7 +8,7 @@ function PrtNumLineByLine(...)
 	endif
 endfunction
 
-function PrtRndNumInList(listLength)
+function! PrtRndNumInList(listLength)
 	"a:listLength is readonly variable
 	let listLength = a:listLength
 	let list = []

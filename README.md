@@ -116,6 +116,8 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 | **Normal** | `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>` | 창(Window) 간 이동 |
 | **Normal** | `<Left>` / `<Down>` / `<Up>` / `<Right>` | 창 크기 조절 |
 | **Normal / Visual** | `<Space>x` | 체크리스트 토글 (`[ ]` ↔ `[x]`) 또는 선택 영역 체크박스 변환 |
+| **Normal / Visual** | `<Space>//` | 현재 줄 또는 선택 영역 주석 추가 |
+| **Normal / Visual** | `<Space>??` | 현재 줄 또는 선택 영역 주석 제거 |
 
 ### 3. 코드 스니펫 및 약어 (Snippets)
 
@@ -126,6 +128,7 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 | `snp.rfc` | Normal | React Functional Component 템플릿 삽입 |
 | `:vrc` | Command | 새 탭에서 `~/.vimrc` 열기 |
 | `:th <명령어>` | Command | 새 탭에서 도움말 열기 (`:tab help`) |
+| `:Compile` | Command | 현재 파일 저장 후 해당 언어 런타임/컴파일러로 실행 |
 | `sysout` / `println` | Insert | Java 파일에서 `System.out.println();` 자동 완성 |
 | `><Enter>` / `><Tab>` | Insert | HTML / React 파일에서 닫는 태그 자동 완성 |
 | `<Enter>` | Insert | Markdown/텍스트 파일에서 체크리스트(`- [ ]`) 자동 개행 및 빈 항목 정리 |

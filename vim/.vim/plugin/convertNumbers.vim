@@ -1,4 +1,4 @@
-function ConvertDecimalToBinary(decimal)
+function! ConvertDecimalToBinary(decimal)
 	if (type(a:decimal) != 0)
 		call ShowErrMsg("Input is not a number")
 		return
@@ -19,7 +19,7 @@ function ConvertDecimalToBinary(decimal)
 	return binaryVal
 endfunction
 
-function ConvertBinaryToDecimal(binary)
+function! ConvertBinaryToDecimal(binary)
 	if (type(a:binary) != 0)
 		call ShowErrMsg("Input is not a number")
 		return
@@ -45,7 +45,9 @@ function ConvertBinaryToDecimal(binary)
 	return decimalVal
 endfunction
 
-
-function ConvertByteToMegaByte(byte)
+function! ConvertByteToMegaByte(byte)
+	if a:byte < 0
+		return 0.0
+	endif
 	return a:byte / 1000 / 1000.0
 endfunction

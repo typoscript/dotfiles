@@ -1,23 +1,44 @@
-function Compile()
-	" Key: extension name
-	" Value: compiler shell command
+" ******************************************************
+" Compile & Run Plugin
+" ******************************************************
 
-	let compilers = #{
-		\ java: "java",
-		\ js: "node",
-		\ py: "python3",
-		\ ts: "ts-node",
+function! Compile()
+	let l:fileName = expand('%')
+	if empty(l:fileName)
+		echo "No file to compile/run"
+		return
+	endif
+
+	" Save file if modified before running
+	if &modified
+		write
+	endif
+
+	let l:compilers = {
+		\ 'py': 'python3',
+		\ 'js': 'node',
+		\ 'ts': 'ts-node',
+		\ 'java': 'java',
+		\ 'sh': 'bash',
+		\ 'bash': 'bash',
+		\ 'zsh': 'zsh',
+		\ 'go': 'go run',
+		\ 'rb': 'ruby',
+		\ 'lua': 'lua',
 		\ }
 
-	let fileName = @%
-	let fileExtension = split(fileName, '\.')[1]
+	let l:fileExtension = expand('%:e')
+	if empty(l:fileExtension)
+		echo "No file extension found: " . l:fileName
+		return
+	endif
 
-	if has_key(compilers, fileExtension)
-		let compilerName = compilers[fileExtension]
-		exe ":!" compilerName " " fileName
+	if has_key(l:compilers, l:fileExtension)
+		let l:compilerName = l:compilers[l:fileExtension]
+		execute '!' . l:compilerName . ' ' . shellescape(l:fileName)
 	else
-		echo "Compiler not found"	
+		echo "No compiler configured for extension: ." . l:fileExtension
 	endif
 endfunction
 
-command! Compile :call Compile()
+command! Compile call Compile()

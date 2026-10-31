@@ -1,4 +1,4 @@
-function IsNumBinary(num)
+function! IsNumBinary(num)
 	let num = a:num
 
 	while num != 0
