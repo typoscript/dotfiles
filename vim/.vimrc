@@ -8,18 +8,23 @@ syntax enable
 filetype plugin indent on
 
 " ******************************************************
-" Cross-Platform Clipboard Integration (macOS / WSL / Linux)
+" Cross-Platform Clipboard Integration
 " ******************************************************
 let s:clip = '/mnt/c/Windows/System32/clip.exe'
 
 if executable(s:clip)
   " WSL Environment
   set clipboard=unnamed
-  augroup WSLYank
-    autocmd!
-    autocmd TextYankPost * call system('echo '.shellescape(join(v:event.regcontents, "\n")).' | '.s:clip)
-  augroup END
-elseif has('mac') || has('macunix') || system('uname -s') =~? 'Darwin'
+  if exists('##TextYankPost')
+    augroup WSLYank
+      autocmd!
+      autocmd TextYankPost * if v:event.operator ==# 'y' | call system('printf %s '.shellescape(join(v:event.regcontents, "\n")).' | '.s:clip) | endif
+    augroup END
+  endif
+elseif has('win32') || has('win64')
+  " Windows Native (CMD / PowerShell / gVim)
+  set clipboard=unnamed,unnamedplus
+elseif has('mac') || has('macunix') || (has('unix') && system('uname -s') =~? 'Darwin')
   " macOS Environment (sync with pbcopy/pbpaste)
   set clipboard=unnamed,unnamedplus
 else
@@ -28,13 +33,22 @@ else
 endif
 
 " ******************************************************
-" Load Modular Configurations
+" Load Modular Configurations (Portable Path Detection)
 " ******************************************************
-source $HOME/.vim/options.vim
-source $HOME/.vim/functions.vim
-source $HOME/.vim/keymaps.vim
-source $HOME/.vim/ui.vim
-source $HOME/.vim/autocmds.vim
+let s:vim_dir = expand('<sfile>:p:h') . '/.vim'
+if !isdirectory(s:vim_dir)
+  let s:vim_dir = expand('$HOME/.vim')
+  if !isdirectory(s:vim_dir)
+    let s:vim_dir = expand('$HOME/vimfiles')
+  endif
+endif
 
-" Note: Files in $HOME/.vim/plugin/*.vim are automatically
+for s:module in ['options.vim', 'functions.vim', 'keymaps.vim', 'ui.vim', 'autocmds.vim']
+  let s:module_path = s:vim_dir . '/' . s:module
+  if filereadable(s:module_path)
+    execute 'source ' . fnameescape(s:module_path)
+  endif
+endfor
+
+" Note: Files in <vim_dir>/plugin/*.vim are automatically
 " loaded by Vim's runtimepath on startup (no manual source needed).

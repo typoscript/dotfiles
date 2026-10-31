@@ -24,7 +24,7 @@ link_file() {
     local dest="$2"
 
     if [ -e "$dest" ] || [ -L "$dest" ]; then
-        if [ "$(readlink -f "$dest" 2>/dev/null)" = "$src" ]; then
+        if [ "$(readlink -f "$dest" 2>/dev/null)" = "$src" ] || [ "$(readlink "$dest" 2>/dev/null)" = "$src" ]; then
             echo "ℹ️  Already linked: $dest -> $src"
             return
         fi

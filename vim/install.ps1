@@ -11,19 +11,48 @@ function Link-Or-Copy-Item {
         [string]$Dest
     )
 
-    if (-not (Test-Path $Src)) {
+    if (-not (Test-Path -LiteralPath $Src)) {
         Write-Host "⚠️ Source not found: $Src (skipping)" -ForegroundColor Yellow
         return
     }
 
-    $isDir = (Get-Item $Src) -is [System.IO.DirectoryInfo]
+    $isDir = (Get-Item -LiteralPath $Src) -is [System.IO.DirectoryInfo]
 
-    if (Test-Path $Dest) {
-        $bak = "$Dest.bak"
-        if (Test-Path $bak) {
-            Remove-Item $bak -Recurse -Force
+    if (Test-Path -LiteralPath $Dest) {
+        $destItem = Get-Item -LiteralPath $Dest -Force -ErrorAction SilentlyContinue
+        $isLinked = $false
+
+        # 이미 심볼릭 링크나 Junction으로 정상 연결되어 있는지 확인 (멱등성 보장)
+        if ($destItem.LinkType -in @('SymbolicLink', 'Junction')) {
+            $currentTarget = if ($destItem.Target -is [array]) { $destItem.Target[0] } else { $destItem.Target }
+            if ($currentTarget) {
+                $resolvedCurrent = try { (Resolve-Path -LiteralPath $currentTarget -ErrorAction Stop).Path } catch { $currentTarget }
+                $resolvedSrc = try { (Resolve-Path -LiteralPath $Src -ErrorAction Stop).Path } catch { $Src }
+                if ($resolvedCurrent -eq $resolvedSrc) {
+                    $isLinked = $true
+                }
+            }
+        } elseif (-not $isDir) {
+            # 파일이 복사(Copy)된 상태인 경우 내용이 동일하면 건너뜀
+            $hashSrc = (Get-FileHash -LiteralPath $Src).Hash
+            $hashDest = (Get-FileHash -LiteralPath $Dest).Hash
+            if ($hashSrc -eq $hashDest) {
+                Write-Host "ℹ️  Already up to date: $Dest" -ForegroundColor Cyan
+                return
+            }
         }
-        Move-Item -Path $Dest -Destination $bak -Force
+
+        if ($isLinked) {
+            Write-Host "ℹ️  Already linked: $Dest -> $Src" -ForegroundColor Cyan
+            return
+        }
+
+        # 기존 파일 또는 디렉터리 백업 (.bak)
+        $bak = "$Dest.bak"
+        if (Test-Path -LiteralPath $bak) {
+            Remove-Item -LiteralPath $bak -Recurse -Force
+        }
+        Move-Item -LiteralPath $Dest -Destination $bak -Force
         Write-Host "📦 Backed up existing $Dest to $bak" -ForegroundColor Gray
     }
 
@@ -43,7 +72,7 @@ function Link-Or-Copy-Item {
                 New-Item -ItemType SymbolicLink -Path $Dest -Target $Src -Force -ErrorAction Stop | Out-Null
                 Write-Host "🔗 Linked file $Src -> $Dest (Symlink)" -ForegroundColor Green
             } catch {
-                Copy-Item -Path $Src -Destination $Dest -Force
+                Copy-Item -LiteralPath $Src -Destination $Dest -Force
                 Write-Host "📦 Copied file $Src -> $Dest (Fallback Copy)" -ForegroundColor Yellow
             }
         }

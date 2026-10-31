@@ -94,7 +94,8 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 
 ### 1. 주요 특징
 - **크로스 플랫폼 클립보드**: 
-  - WSL: `clip.exe`와 자동 연동되어 윈도우 클립보드로 복사
+  - Windows: 네이티브 클립보드(`unnamed,unnamedplus`) 자동 연동
+  - WSL: `clip.exe` 및 `printf` 연동으로 Windows 클립보드 복사 (불필요한 후행 개행 방지)
   - macOS: `pbcopy`/`pbpaste`(`unnamed,unnamedplus`)와 자동 연동
 - **IdeaVim 연동**: IntelliJ, WebStorm 등 JetBrains IDE에서도 동일한 에디터 경험 제공 (`~/.ideavimrc`)
 - **버퍼 누적 방지**: `augroup`을 적용하여 `:source ~/.vimrc` 실행 시 이벤트가 중복 실행되지 않음
