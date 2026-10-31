@@ -36,6 +36,35 @@ hi netrwMarkFile ctermfg=red
 hi Directory ctermfg=220
 
 " ******************************************************
+" Statusline Helpers
+" ******************************************************
+function! StatuslineModTime()
+	let l:file = expand('%')
+	if !empty(l:file)
+		let l:time = getftime(l:file)
+		if l:time > 0
+			return ' [' . strftime('%b %d %a %H:%M', l:time) . ']'
+		endif
+	endif
+	return ''
+endfunction
+
+function! StatuslineFileSize()
+	let l:file = expand('%')
+	if !empty(l:file) && filereadable(l:file)
+		let l:size = getfsize(l:file)
+		if l:size > 0
+			if exists('*ConvertByteToMegaByte')
+				return printf(' | %.2fMB', ConvertByteToMegaByte(l:size))
+			else
+				return printf(' | %.2fMB', l:size / 1000000.0)
+			endif
+		endif
+	endif
+	return ''
+endfunction
+
+" ******************************************************
 " Statusline Setup
 " ******************************************************
 set laststatus=2 " Always show statusline
@@ -56,5 +85,5 @@ set statusline+=\ Ln:\ %l,\ Col:\ %c
 set statusline+=\ \|\ %p%%
 set statusline+=\ \|\ %Y
 set statusline+=\ \|\ %{&fileencoding?&fileencoding:&encoding}
-set statusline+=\ \|\ %{exists('*ConvertByteToMegaByte')&&exists('*GetFileSize')?ConvertByteToMegaByte(GetFileSize()):0}MB
-set statusline+=\ [%{strftime('%b\ %d\ %a\ %H:%M',getftime(expand('%')))}]
+set statusline+=%{StatuslineFileSize()}
+set statusline+=%{StatuslineModTime()}
