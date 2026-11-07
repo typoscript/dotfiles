@@ -45,3 +45,10 @@ PROMPT='%n%~% > '
 
 # Right prompt: Display active git branch name
 RPROMPT=\$vcs_info_msg_0_
+
+# ==============================================================================
+# Machine-local overrides (git 미추적)
+# ==============================================================================
+if [ -f "$HOME/.zshrc.local" ]; then
+    source "$HOME/.zshrc.local"
+fi

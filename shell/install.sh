@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=../lib/common.sh
+source "$DIR/../lib/common.sh"
 
 echo "🚀 [Shell Setup] Initializing installation..."
 
@@ -17,44 +19,6 @@ else
 fi
 
 echo "🖥️  Detected OS: $OS"
-
-# 심볼릭 링크 대상 실제 경로 확인 헬퍼 함수 (macOS/Linux 호환)
-get_real_path() {
-    local target="$1"
-    if command -v python3 >/dev/null 2>&1; then
-        python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$target" 2>/dev/null || true
-    elif command -v python >/dev/null 2>&1; then
-        python -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$target" 2>/dev/null || true
-    else
-        readlink -f "$target" 2>/dev/null || readlink "$target" 2>/dev/null || true
-    fi
-}
-
-# 파일 심볼릭 링크 생성 함수 (멱등성 및 백업 지원)
-link_file() {
-    local src="$1"
-    local dest="$2"
-
-    if [ ! -f "$src" ]; then
-        echo "⚠️  Source file not found: $src (skipping)"
-        return
-    fi
-
-    if [ -e "$dest" ] || [ -L "$dest" ]; then
-        local current_target
-        current_target="$(get_real_path "$dest")"
-        if [ "$current_target" = "$src" ]; then
-            echo "ℹ️  Already linked: $dest -> $src"
-            return
-        fi
-        echo "📦 Backing up existing $dest to ${dest}.bak..."
-        rm -rf "${dest}.bak"
-        mv "$dest" "${dest}.bak"
-    fi
-
-    echo "🔗 Linking $src -> $dest..."
-    ln -s "$src" "$dest"
-}
 
 # 1. 공통 별칭(Aliases) 심볼릭 링크 (~/.aliases)
 link_file "$DIR/aliases.sh" "$HOME/.aliases"

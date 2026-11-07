@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 set -e
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=../lib/common.sh
+source "$DIR/../lib/common.sh"
+
 TARGET_DIR="$HOME/.gemini/antigravity-cli"
 CONFIG_DIR="$HOME/.config/agy"
 
 echo "🚀 [Antigravity Setup] Initializing installation..."
 
-# 1. 상태바 디렉터리 및 심볼릭 링크 설정
-mkdir -p "$CONFIG_DIR"
-echo "🔗 Linking statusline.py to $CONFIG_DIR/statusline.py..."
-ln -sf "$DIR/statusline.py" "$CONFIG_DIR/statusline.py"
-chmod +x "$CONFIG_DIR/statusline.py"
+# 1. 상태바 스크립트 심볼릭 링크 (기존 파일은 비파괴 백업)
+chmod +x "$DIR/statusline.py"
+link_file "$DIR/statusline.py" "$CONFIG_DIR/statusline.py"
 
 # 2. OS 감지
 if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname -s)" == "Darwin" ]]; then
@@ -36,13 +37,10 @@ if [ -f "$OVERRIDE_FILE" ]; then
 fi
 
 # 3. settings.json 병합 및 적용
-mkdir -p "$TARGET_DIR"
+#    백업/검증은 merge_settings.py 가 담당:
+#    - 내용이 바뀔 때만 비파괴 백업(.bak / .bak.<timestamp>)
+#    - 기존 settings.json 이나 config 가 깨진 JSON 이면 아무것도 쓰지 않고 실패
 SETTINGS_TARGET="$TARGET_DIR/settings.json"
-
-if [ -f "$SETTINGS_TARGET" ]; then
-    cp "$SETTINGS_TARGET" "$SETTINGS_TARGET.bak"
-    echo "📦 Backed up existing settings to $SETTINGS_TARGET.bak"
-fi
 
 PYTHON_BIN="python3"
 if ! command -v python3 >/dev/null 2>&1 && command -v python >/dev/null 2>&1; then
@@ -51,11 +49,9 @@ fi
 
 "$PYTHON_BIN" "$DIR/merge_settings.py" --base "$BASE_FILE" --override "$OVERRIDE_FILE" --target "$SETTINGS_TARGET" --home "${HOME:-$USERPROFILE}"
 
-# 4. rules.md 전역 룰 연결
+# 4. rules.md 전역 룰 연결 (기존 파일은 비파괴 백업)
 if [ -f "$DIR/rules.md" ]; then
-    mkdir -p "$TARGET_DIR/rules"
-    ln -sf "$DIR/rules.md" "$TARGET_DIR/rules/global_rules.md"
-    echo "📝 Linked global rules to $TARGET_DIR/rules/global_rules.md"
+    link_file "$DIR/rules.md" "$TARGET_DIR/rules/global_rules.md"
 fi
 
 echo "🎉 All done! Please restart your Antigravity CLI session to take effect."

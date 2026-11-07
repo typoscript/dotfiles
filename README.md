@@ -14,6 +14,9 @@ dotfiles/
 ├── install.sh            # 🚀 macOS / WSL / Linux 원클릭 자동 설치 스크립트
 ├── install.bat           # 🚀 Windows CMD 원클릭 자동 설치 배치 파일
 ├── install.ps1           # 🚀 Windows PowerShell 전체 설치 스크립트
+├── lib/                  # 🧰 설치 스크립트 공통 헬퍼 (링크 생성 및 비파괴 백업)
+│   ├── common.sh         # macOS/WSL/Linux용 link_file, backup_existing
+│   └── common.ps1        # Windows용 Install-Link (Symlink → Junction/Copy Fallback)
 ├── shell/                # 🐚 셸(zsh / bash / PowerShell / CMD) 설정 모듈
 │   ├── install.sh        # macOS/WSL 심볼릭 링크 연결
 │   ├── install.ps1       # Windows PowerShell $PROFILE & CMD doskey 매크로 자동 등록
@@ -55,6 +58,14 @@ dotfiles/
 ## 🚀 빠른 시작 (설치 방법)
 
 macOS, WSL(Linux), Windows(CMD/PowerShell)를 모두 지원하며, OS를 자동 감지하여 기존 설정을 백업한 뒤 안전하게 설치합니다.
+
+**백업 규칙** (`lib/common.sh`, `lib/common.ps1`)
+- 기존 파일이 있으면 `<파일>.bak`으로 옮깁니다. `.bak`이 이미 있으면 **덮어쓰지 않고** `<파일>.bak.<YYYYmmdd-HHMMSS>`로 새로 만듭니다.
+- 이미 올바르게 연결된 항목은 건너뛰므로 여러 번 실행해도 안전합니다 (저장소를 심볼릭 링크 경로로 실행해도 동일).
+- 저장소를 옮긴 뒤 남은 깨진 심볼릭 링크는 데이터가 없으므로 백업 없이 제거 후 다시 연결합니다.
+
+> ⚠️ `shell/install.sh`는 기존 `~/.bashrc`를 백업하고 저장소의 `.bashrc`로 교체합니다.
+> 기본 설정(히스토리, bash-completion, nvm)은 포함되어 있으며, 머신별 설정은 `~/.bashrc.local`(zsh는 `~/.zshrc.local`)에 작성하세요.
 
 ### 🍎 macOS & 🐧 WSL / Linux
 
@@ -143,6 +154,11 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 - `toolPermission: "always-proceed"`: 도구 실행 권한 프롬프트 자동 패스
 - `agentMode: "auto"`: 자율 실행 모드
 - `permissions.allow: ["command(*)"]`: 터미널 명령어 전체 자동 승인
+
+`merge_settings.py`는 `config.json` → OS 오버라이드 → 기존 `settings.json` 순서로 병합합니다:
+- 스칼라 값(`toolPermission` 등)은 config 값으로 **강제 적용**됩니다.
+- 리스트(`permissions.allow`, `deny` 등)는 기존 항목을 유지하고 없는 항목만 추가합니다. config에서 항목을 지워도 기존 settings에서는 제거되지 않습니다.
+- 내용이 바뀔 때만 기존 `settings.json`을 백업하고, 기존 파일이나 config가 깨진 JSON이면 **아무것도 쓰지 않고 실패**합니다.
 
 ### 2. Statusline (상태바)
 `agy` 하단에 토큰 및 쿼터 현황(초기화 잔여 시간 포함)을 3줄로 표시합니다.

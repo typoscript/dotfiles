@@ -17,7 +17,7 @@ dotfiles/<tool>/
 
 ### `install.sh` 및 `install.ps1` 필수 요구조건:
 1. **멱등성(Idempotent)**: 여러 번 실행해도 안전해야 하며, 이미 심볼릭 링크나 파일이 설정되어 있다면 건너뛰거나 갱신합니다.
-2. **기존 파일 백업**: 대상 경로에 기존 설정이 파일이나 디렉터리로 존재하면 `${dest}.bak`으로 백업합니다.
+2. **기존 파일 백업 (비파괴)**: 링크/백업은 직접 구현하지 말고 `lib/common.sh`의 `link_file` / `backup_existing`, `lib/common.ps1`의 `Install-Link` / `Backup-Existing`을 사용합니다. 기존 `.bak`은 절대 삭제하거나 덮어쓰지 않으며 (`.bak.<timestamp>`로 새로 생성), `rm -rf "${dest}.bak"`, `ln -sf`, `Remove-Item` 후 재생성 같은 패턴은 금지합니다.
 3. **크로스 플랫폼 지원**: macOS(`Darwin`), WSL(`microsoft`), Linux, Windows(`Windows_NT`)를 구분하여 플랫폼별 차이를 지원합니다.
 4. **Windows 권한 안전성**: Windows에서는 관리자 권한 없는 환경을 고려해 심볼릭 링크 실패 시 디렉터리는 Junction, 파일은 Copy로 안전하게 Fallback 처리합니다.
 5. **JSON 경로 이스케이프 주의**: Windows 경로(`C:\Users\...`)를 JSON 치환 시 슬래시(`/`)로 정규화하거나 이스케이프(`\\`) 처리하여 JSON 파싱 에러를 방지합니다.
