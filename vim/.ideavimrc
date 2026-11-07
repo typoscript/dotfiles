@@ -1,6 +1,6 @@
 " This is .vimrc file for IdeaVim plugin in IntelliJ
 inoremap jk <esc>
-inoremap a' <esc>A
+inoremap <C-e> <End>
 nnoremap ; :
 cnoremap jk <esc>
 

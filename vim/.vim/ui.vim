@@ -49,6 +49,11 @@ function! StatuslineModTime()
 	return ''
 endfunction
 
+" 파일 인코딩 (새 버퍼처럼 fileencoding 이 비어 있으면 encoding)
+function! StatuslineEncoding()
+	return empty(&fileencoding) ? &encoding : &fileencoding
+endfunction
+
 function! StatuslineFileSize()
 	let l:file = expand('%')
 	if !empty(l:file) && filereadable(l:file)
@@ -84,6 +89,6 @@ set statusline+=%=
 set statusline+=\ Ln:\ %l,\ Col:\ %c
 set statusline+=\ \|\ %p%%
 set statusline+=\ \|\ %Y
-set statusline+=\ \|\ %{&fileencoding?&fileencoding:&encoding}
+set statusline+=\ \|\ %{StatuslineEncoding()}
 set statusline+=%{StatuslineFileSize()}
 set statusline+=%{StatuslineModTime()}

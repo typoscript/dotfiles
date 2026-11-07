@@ -13,7 +13,7 @@ endfunction
 " Handle smart Enter key in insert mode for checklist items
 function! s:checklistNewline()
 	if !s:isChecklistFileType()
-		return "\n"
+		return pairs#smartEnter()
 	endif
 
 	let l:line = getline('.')
@@ -34,8 +34,8 @@ function! s:checklistNewline()
 		return "\n" . l:prefix
 	endif
 
-	" 3. Default newline
-	return "\n"
+	" 3. Default: smart Enter ({|} 블록 열기 등)
+	return pairs#smartEnter()
 endfunction
 
 " Toggle [ ] <-> [x] or add checkbox to current line / selection

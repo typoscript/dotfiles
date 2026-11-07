@@ -48,6 +48,7 @@ dotfiles/
         ├── ui.vim        # 하이라이트 및 상태바 (highlights, statusline 통합)
         ├── functions.vim # 유틸리티 함수 및 커스텀 커맨드 (:Vrc 등)
         ├── autocmds.vim  # augroup 기반 전역 이벤트
+        ├── autoload/     # 필요 시 로딩되는 공용 함수 (pairs.vim: smart Enter, tagcomplete.vim: 태그 자동 닫기)
         ├── ftplugin/     # 언어별 지연 로딩 (HTML, React, Java 등)
         ├── plugin/       # 커스텀 유틸리티 플러그인들
         └── snippets/     # 코드 스켈레톤 템플릿 파일들
@@ -110,6 +111,7 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
   - macOS: `pbcopy`/`pbpaste`(`unnamed,unnamedplus`)와 자동 연동
 - **IdeaVim 연동**: IntelliJ, WebStorm 등 JetBrains IDE에서도 동일한 에디터 경험 제공 (`~/.ideavimrc`)
 - **버퍼 누적 방지**: `augroup`을 적용하여 `:source ~/.vimrc` 실행 시 이벤트가 중복 실행되지 않음
+- **한글 인코딩 자동 감지**: UTF-8이 아닌 파일은 `cp949`(euc-kr)로 열고, 상태바에 실제 파일 인코딩을 표시 (`fileencodings=ucs-bom,utf-8,cp949,latin1`)
 
 ### 2. 주요 단축키 (Leader Key: `<Space>`)
 
@@ -121,6 +123,7 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 | **Normal** | `<Space>l` / `<Space>nl` | 공백/탭/개행 특수문자 표시 켜기 / 끄기 |
 | **Normal** | `<Space>qq` / `<Space>qa` | 창 닫기 (`:q`) / 전체 강제 종료 (`:qa!`) |
 | **Insert** | `jk` | Normal 모드로 복귀 (`<Esc>`) |
+| **Insert** | `<C-e>` | 줄 끝으로 이동 (Vim / IdeaVim 공통) |
 | **Normal** | `d_` | 클립보드(레지스터)를 오염시키지 않고 현재 줄 삭제 |
 | **Normal** | `Y` | 현재 커서부터 행 끝까지 복사 (`y$`) |
 | **Normal** | `sw"` / `sw'` / `sw(` / `sw[` / `sw{` | 현재 단어를 따옴표/괄호로 감싸기 (`ciw`) |
@@ -141,8 +144,9 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 | `:vrc` | Command | 새 탭에서 `~/.vimrc` 열기 |
 | `:th <명령어>` | Command | 새 탭에서 도움말 열기 (`:tab help`) |
 | `:Compile` | Command | 현재 파일 저장 후 해당 언어 런타임/컴파일러로 실행 |
-| `sysout` / `sout` / `println` | Insert | Java 파일에서 `System.out.println();` 자동 완성 (커서 괄호 내부 위치) |
-| `<Enter>` / `<Tab>` | Insert | HTML / React 파일에서 열린 태그 직후 닫는 태그 자동 완성 (개행 블록 / 인라인) |
+| `sysout` / `sout` + `<Space>`/`<Tab>` | Insert | Java 파일에서 `System.out.println();`로 확장 (커서 괄호 내부 위치, 단어로 입력했을 때만) |
+| `<Enter>` / `<Tab>` | Insert | HTML / React 파일에서 열린 태그 직후 닫는 태그 자동 완성 (개행 블록 / 인라인). TSX/JSX에서 `Array<string>` 같은 제네릭은 무시 |
+| `<Enter>` | Insert | 빈 괄호 쌍 `{}` `()` `[]` 사이에서 블록 열기 (모든 파일, HTML/React/Markdown 포함) |
 | `<Enter>` | Insert | Markdown/텍스트 파일에서 체크리스트(`- [ ]`) 자동 개행 및 빈 항목 정리 |
 
 ---

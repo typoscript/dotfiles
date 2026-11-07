@@ -4,7 +4,8 @@
 
 " Normal / Insert Mode Navigation
 inoremap jk <Esc>
-inoremap a' <Esc><S-a>
+" Insert 모드에서 줄 끝으로 이동 (이전 a' 매핑은 'a' 다음 ' 입력과 충돌해 교체)
+inoremap <C-e> <End>
 
 " Cancel command in Command-line Mode
 cnoremap qq <C-c>
@@ -136,20 +137,6 @@ function! s:backspacePair()
 	return "\<BS>"
 endfunction
 
-function! s:smartEnter()
-	let l:line = getline('.')
-	let l:col = col('.')
-	if l:col > 1
-		let l:prevChar = l:line[l:col - 2]
-		let l:nextChar = l:line[l:col - 1]
-		if (l:prevChar == '{' && l:nextChar == '}') ||
-		 \ (l:prevChar == '(' && l:nextChar == ')') ||
-		 \ (l:prevChar == '[' && l:nextChar == ']')
-			return "\<CR>\<Esc>O"
-		endif
-	endif
-	return "\<CR>"
-endfunction
 
 " Opening pairs
 inoremap <silent> ( ()<Left>
@@ -167,7 +154,7 @@ inoremap <silent> ' <C-r>=<SID>quotePair("'")<CR>
 inoremap <silent> ` <C-r>=<SID>quotePair('`')<CR>
 
 " Smart Enter between bracket pairs
-inoremap <silent> <CR> <C-r>=<SID>smartEnter()<CR>
+inoremap <silent> <CR> <C-r>=pairs#smartEnter()<CR>
 
 " Smart Backspace (delete pair together)
 inoremap <silent> <BS> <C-r>=<SID>backspacePair()<CR>

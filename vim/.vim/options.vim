@@ -31,6 +31,9 @@ set wildignore+=**/.git/**
 
 " Display & File Formatting
 set encoding=utf-8
+" 파일 인코딩 자동 감지: UTF-8 이 아니면 한글 cp949(euc-kr) 로 시도, 최후에 latin1
+" (encoding 설정 뒤에 둬야 기본값으로 덮이지 않음)
+set fileencodings=ucs-bom,utf-8,cp949,latin1
 set listchars=tab:→\ ,eol:↲,space:·     " Visualize tabs and newlines (toggle with :set list)
 set showmatch                           " Highlight matching brackets
 set showcmd                             " Show currently typed keys in normal mode
