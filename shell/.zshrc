@@ -1,11 +1,17 @@
 # ==============================================================================
 # Environment Variables & PATH Configuration
 # ==============================================================================
-# Java JDK configuration
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home
+# Java JDK configuration (macOS 에서 JDK 가 있을 때만 설정)
+if [ -d /Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home ]; then
+    export JAVA_HOME=/Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home
+elif [ -x /usr/libexec/java_home ] && /usr/libexec/java_home >/dev/null 2>&1; then
+    export JAVA_HOME="$(/usr/libexec/java_home)"
+fi
+if [ -n "$JAVA_HOME" ]; then
+    export PATH="$JAVA_HOME/bin:$PATH"
+fi
 
 # Prepend custom binary directories to system PATH
-export PATH="$JAVA_HOME/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
 

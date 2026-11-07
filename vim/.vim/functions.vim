@@ -2,9 +2,9 @@
 " Functions & Utility Commands
 " ******************************************************
 
-function! CopyFuncReturnVal(func)
-  let funcReturnVal = a:func
-  execute ":redir @+ | echo ".string(funcReturnVal). " | redir END"
+" 함수 반환값을 시스템 클립보드로 복사 (예: :call CopyFuncReturnVal(GetFileSize()))
+function! CopyFuncReturnVal(value)
+  call clipboard#copy(type(a:value) == v:t_string ? a:value : string(a:value))
 endfunction
 
 function! ShowErrMsg(msg)

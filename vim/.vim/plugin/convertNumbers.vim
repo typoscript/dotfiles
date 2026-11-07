@@ -1,53 +1,35 @@
+" ******************************************************
+" Number Conversion Helpers
+"   :echo ConvertDecimalToBinary(10)      -> '1010'
+"   :echo ConvertBinaryToDecimal('1010')  -> 10   (숫자 1010 도 허용)
+"   :echo ConvertByteToMegaByte(1500000)  -> 1.5
+" 2진수는 문자열로 다뤄서 큰 값(2^19 이상)에서도 정수 오버플로가 나지 않는다.
+" ******************************************************
+
 function! ConvertDecimalToBinary(decimal)
-	if (type(a:decimal) != 0)
-		call ShowErrMsg("Input is not a number")
-		return
+	if type(a:decimal) != v:t_number || a:decimal < 0
+		call ShowErrMsg("Input is not a non-negative number")
+		return ''
 	endif
-
-	let decimalVal = a:decimal
-	let binaryVal = 0
-	let base = 1
-
-	while decimalVal > 0
-		let lastDigit = decimalVal % 2
-		let decimalVal /= 2
-
-		let binaryVal += lastDigit * base
-		let base *= 10
-	endwhile
-
-	return binaryVal
+	return printf('%b', a:decimal)
 endfunction
 
 function! ConvertBinaryToDecimal(binary)
-	if (type(a:binary) != 0)
+	if type(a:binary) != v:t_number && type(a:binary) != v:t_string
 		call ShowErrMsg("Input is not a number")
 		return
 	endif
-
-	if (!IsNumBinary(a:binary))
+	let l:digits = type(a:binary) == v:t_string ? a:binary : string(a:binary)
+	if l:digits !~# '^[01]\+$'
 		call ShowErrMsg("Input is not a binary number")
 		return
 	endif
-
-	let binaryVal = a:binary
-	let decimalVal = 0
-	let base = 1
-
-	while binaryVal > 0
-		let lastDigit = binaryVal % 10
-		let binaryVal /= 10
-
-		let decimalVal += lastDigit * base
-		let base *= 2
-	endwhile
-
-	return decimalVal
+	return str2nr(l:digits, 2)
 endfunction
 
 function! ConvertByteToMegaByte(byte)
 	if a:byte < 0
 		return 0.0
 	endif
-	return a:byte / 1000 / 1000.0
+	return a:byte / 1000000.0
 endfunction

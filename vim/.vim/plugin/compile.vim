@@ -15,7 +15,7 @@ function! Compile()
 	endif
 
 	let l:compilers = {
-		\ 'py': 'python3',
+		\ 'py': has('win32') ? 'python' : 'python3',
 		\ 'js': 'node',
 		\ 'ts': 'ts-node',
 		\ 'java': 'java',
@@ -35,7 +35,8 @@ function! Compile()
 
 	if has_key(l:compilers, l:fileExtension)
 		let l:compilerName = l:compilers[l:fileExtension]
-		execute '!' . l:compilerName . ' ' . shellescape(l:fileName)
+		" shellescape(..., 1): :! 에서 %, #, ! 가 다른 파일명으로 치환되지 않도록 이스케이프
+		execute '!' . l:compilerName . ' ' . shellescape(l:fileName, 1)
 	else
 		echo "No compiler configured for extension: ." . l:fileExtension
 	endif

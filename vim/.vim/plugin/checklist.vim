@@ -18,6 +18,12 @@ function! s:checklistNewline()
 
 	let l:line = getline('.')
 
+	" 0. Cursor is before/inside the checkbox (e.g. column 1): plain newline
+	let l:boxEnd = matchend(l:line, '^\s*\([*+-]\s\+\)\?\[[ xX]\]')
+	if l:boxEnd != -1 && col('.') - 1 < l:boxEnd
+		return "\<CR>"
+	endif
+
 	" 1. If line is an empty checkbox item, clear the checkbox to stop the list
 	if l:line =~# '^\s*\([*+-]\s\+\)\?\[[ xX]\]\s*$'
 		call setline('.', substitute(l:line, '\([*+-]\s\+\)\?\[[ xX]\]\s*$', '', ''))

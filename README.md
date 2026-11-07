@@ -107,7 +107,8 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 ### 1. 주요 특징
 - **크로스 플랫폼 클립보드**: 
   - Windows: 네이티브 클립보드(`unnamed,unnamedplus`) 자동 연동
-  - WSL: `clip.exe` 및 `printf` 연동으로 Windows 클립보드 복사 (불필요한 후행 개행 방지)
+  - WSL: `clip.exe` 연동으로 Windows 클립보드 복사. 텍스트를 UTF-16LE로 변환해 stdin으로 넘기므로 한글이 깨지지 않고 큰 yank도 안전 (`autoload/clipboard.vim`)
+  - `+clipboard`가 없는 터미널 Vim에서도 `:ShowCurrentFilePath`, `:CopyCurrentFileName`이 시스템 클립보드(clip.exe / pbcopy / wl-copy / xclip)로 복사
   - macOS: `pbcopy`/`pbpaste`(`unnamed,unnamedplus`)와 자동 연동
 - **IdeaVim 연동**: IntelliJ, WebStorm 등 JetBrains IDE에서도 동일한 에디터 경험 제공 (`~/.ideavimrc`)
 - **버퍼 누적 방지**: `augroup`을 적용하여 `:source ~/.vimrc` 실행 시 이벤트가 중복 실행되지 않음
@@ -121,7 +122,7 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 | **Normal** | `-` | 현재 파일이 위치한 디렉터리를 Netrw로 열기 |
 | **Normal** | `<Space>nh` | 검색 하이라이트 끄기 (`:noh`) |
 | **Normal** | `<Space>l` / `<Space>nl` | 공백/탭/개행 특수문자 표시 켜기 / 끄기 |
-| **Normal** | `<Space>qq` / `<Space>qa` | 창 닫기 (`:q`) / 전체 강제 종료 (`:qa!`) |
+| **Normal** | `<Space>qq` / `<Space>qa` | 창 닫기 (`:q`) / 전체 종료 (`:confirm qa`, 저장 안 된 버퍼가 있으면 저장 여부 확인) |
 | **Insert** | `jk` | Normal 모드로 복귀 (`<Esc>`) |
 | **Insert** | `<C-e>` | 줄 끝으로 이동 (Vim / IdeaVim 공통) |
 | **Normal** | `d_` | 클립보드(레지스터)를 오염시키지 않고 현재 줄 삭제 |
@@ -131,7 +132,7 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 | **Normal** | `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>` | 창(Window) 간 이동 |
 | **Normal** | `<Left>` / `<Down>` / `<Up>` / `<Right>` | 창 크기 조절 |
 | **Normal / Visual** | `<Space>x` | 체크리스트 토글 (`[ ]` ↔ `[x]`) 또는 선택 영역 체크박스 변환 |
-| **Normal / Visual** | `<Space>//` | 현재 줄 또는 선택 영역 주석 추가 |
+| **Normal / Visual** | `<Space>//` | 현재 줄 또는 선택 영역 주석 추가 (HTML/CSS 등은 `<!-- -->`, `/* */`로 줄마다 닫음) |
 | **Normal / Visual** | `<Space>??` | 현재 줄 또는 선택 영역 주석 제거 |
 
 ### 3. 코드 스니펫 및 약어 (Snippets)
@@ -143,6 +144,8 @@ Vim 표준 디렉터리 구조를 준수하며, 파일타입별 지연 로딩(La
 | `snp.rfc` | Normal | React Functional Component 템플릿 삽입 |
 | `:vrc` | Command | 새 탭에서 `~/.vimrc` 열기 |
 | `:th <명령어>` | Command | 새 탭에서 도움말 열기 (`:tab help`) |
+| `:vt <명령어>` | Command | 명령 앞에 `vert` 붙이기 (예: `:vt new`, `:vt sb 2`) |
+| `qq` | Command | `:` 명령줄 입력 취소 (검색 `/` `?`에서는 그대로 입력됨) |
 | `:Compile` | Command | 현재 파일 저장 후 해당 언어 런타임/컴파일러로 실행 |
 | `sysout` / `sout` + `<Space>`/`<Tab>` | Insert | Java 파일에서 `System.out.println();`로 확장 (커서 괄호 내부 위치, 단어로 입력했을 때만) |
 | `<Enter>` / `<Tab>` | Insert | HTML / React 파일에서 열린 태그 직후 닫는 태그 자동 완성 (개행 블록 / 인라인). TSX/JSX에서 `Array<string>` 같은 제네릭은 무시 |
@@ -197,6 +200,8 @@ macOS(zsh)와 WSL/Linux(bash) 설정을 분리하여 관리하며, OS 감지를 
 ### 주요 특징
 - **Vi 키바인딩 모드**: macOS zsh에서 터미널 커맨드라인 Vi 편집 모드 활성화 (`bindkey -v`)
 - **Git 프롬프트 연동**: `vcs_info`를 이용해 현재 작업 디렉터리의 활성 git 브랜치 명을 우측 프롬프트(RPROMPT)에 실시간 표시
+- **JAVA_HOME 자동 설정**: macOS에서 JDK가 있을 때만 설정 (`microsoft-11.jdk` 우선, 없으면 `/usr/libexec/java_home`)
+- **Windows PowerShell 프로필**: Windows PowerShell 5.1과 PowerShell 7 프로필 모두에 별칭을 등록합니다. 5.1의 실행 정책이 `Restricted`이면 프로필이 로드되지 않으므로, 설치 스크립트가 안내하는 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`를 직접 실행하세요.
 
 ---
 

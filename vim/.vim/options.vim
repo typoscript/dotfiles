@@ -9,7 +9,6 @@ let mapleader = ' '
 set belloff=all                         " Mute all beep sounds
 set cursorline                          " Allow current line highlighting
 set foldcolumn=0                        " Remove whitespaces before line number
-set nrformats+=alpha                    " Add alphabet as number format (<C-a>/<C-x>)
 set omnifunc=syntaxcomplete#Complete    " Auto-completion for most languages
 set scrolloff=8                         " Scroll offset lines from screen edge
 set timeoutlen=500                      " Mapping delay in milliseconds

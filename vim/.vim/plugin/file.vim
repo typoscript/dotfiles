@@ -2,7 +2,7 @@
 " Show - Echo Value
 " ******************************************************
 function! ShowCurrentFilePath()
-	let @+ = expand('%:p')
+	call clipboard#copy(expand('%:p'))
 	echo expand('%:p')
 endfunction
 	
@@ -18,8 +18,9 @@ endfunction
 " Copy - Copy Result to Clipboard
 " ******************************************************
 function! CopyCurrentFileName()
-	let @+ = fnamemodify(expand('%'), ':t')
-	echo @+
+	let l:name = fnamemodify(expand('%'), ':t')
+	call clipboard#copy(l:name)
+	echo l:name
 endfunction
 
 command! ShowCurrentFilePath call ShowCurrentFilePath()

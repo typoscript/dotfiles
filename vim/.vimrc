@@ -10,15 +10,14 @@ filetype plugin indent on
 " ******************************************************
 " Cross-Platform Clipboard Integration
 " ******************************************************
-let s:clip = '/mnt/c/Windows/System32/clip.exe'
-
-if executable(s:clip)
+if executable(clipboard#wslClip())
   " WSL Environment
   set clipboard=unnamed
   if exists('##TextYankPost')
     augroup WSLYank
       autocmd!
-      autocmd TextYankPost * if v:event.operator ==# 'y' | call system('printf %s '.shellescape(join(v:event.regcontents, "\n")).' | '.s:clip) | endif
+      " stdin 으로 전달 (큰 yank 도 안전) + UTF-16LE 변환 (한글 깨짐 방지): autoload/clipboard.vim
+      autocmd TextYankPost * if v:event.operator ==# 'y' | call clipboard#copy(join(v:event.regcontents, "\n")) | endif
     augroup END
   endif
 elseif has('win32') || has('win64')

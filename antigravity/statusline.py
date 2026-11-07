@@ -25,8 +25,20 @@ BLUE = "\033[34m"
 RED = "\033[31m"
 
 
+def to_float(value, default=0.0):
+    """숫자로 바꿀 수 없는 값(None, "abc" 등)은 default 로 대체"""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def as_dict(value):
+    return value if isinstance(value, dict) else {}
+
+
 def format_tokens(num):
-    n = int(num or 0)
+    n = int(to_float(num))
     if n >= 1_000_000:
         return f"{n / 1_000_000:.1f}M"
     if n >= 1_000:
@@ -86,14 +98,14 @@ def format_used(quota_entry):
     """quota 항목에서 사용률(%)을 계산해 색상과 함께 반환"""
     if not isinstance(quota_entry, dict):
         return f"{DIM}N/A{RESET}"
-    remaining = quota_entry.get("remaining_fraction")
+    remaining = to_float(quota_entry.get("remaining_fraction"), None)
     if remaining is None:
         return f"{DIM}N/A{RESET}"
-    used = (1.0 - float(remaining)) * 100
+    used = (1.0 - remaining) * 100
     return f"{color_for(used)}{used:.1f}%{RESET}"
 
 
-def main():
+def render():
     try:
         if hasattr(sys.stdout, "reconfigure"):
             sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -108,15 +120,15 @@ def main():
         raw = ""
 
     try:
-        payload = json.loads(raw) if raw else {}
+        payload = as_dict(json.loads(raw)) if raw else {}
     except json.JSONDecodeError:
         payload = {}
 
     # 1행: 컨텍스트 및 현재 모델
-    ctx = payload.get("context_window") or {}
-    used_pct = float(ctx.get("used_percentage") or 0)
-    size = int(ctx.get("context_window_size") or 0)
-    used_tokens = int(ctx.get("total_input_tokens") or 0)
+    ctx = as_dict(payload.get("context_window"))
+    used_pct = to_float(ctx.get("used_percentage"))
+    size = ctx.get("context_window_size")
+    used_tokens = ctx.get("total_input_tokens")
     line1 = (
         f"{CYAN}{BOLD}[Context]{RESET} "
         f"{format_tokens(used_tokens)} / {format_tokens(size)} "
@@ -134,7 +146,7 @@ def main():
     if model_name:
         line1 += f"  |  {model_name}"
 
-    quota = payload.get("quota") or {}
+    quota = as_dict(payload.get("quota"))
 
     # 2행: 서드파티
     q_3p_5h = quota.get("3p-5h")
@@ -157,6 +169,14 @@ def main():
     )
 
     sys.stdout.write(f"{line1}\n{line2}\n{line3}\n")
+
+
+def main():
+    # 상태바 스크립트가 예외로 죽으면 상태바 전체가 사라지므로 최소 출력은 보장
+    try:
+        render()
+    except Exception as e:
+        sys.stdout.write(f"{DIM}[statusline error: {type(e).__name__}]{RESET}\n")
 
 
 if __name__ == "__main__":

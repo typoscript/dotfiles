@@ -7,8 +7,8 @@ inoremap jk <Esc>
 " Insert 모드에서 줄 끝으로 이동 (이전 a' 매핑은 'a' 다음 ' 입력과 충돌해 교체)
 inoremap <C-e> <End>
 
-" Cancel command in Command-line Mode
-cnoremap qq <C-c>
+" Cancel command in Command-line Mode (':' 명령줄에서만, 검색 '/' '?' 에서는 qq 입력 가능)
+cnoremap <expr> qq getcmdtype() ==# ':' ? "\<C-c>" : 'qq'
 
 " Delete line without storing into default register
 nnoremap d_ "_dd
@@ -34,7 +34,7 @@ nnoremap <Leader>e :Lex<Cr>
 nnoremap - :e %:h<Cr>
 
 " Window Quit
-nnoremap <Leader>qa :qa!<Cr>
+nnoremap <Leader>qa :confirm qa<Cr>
 nnoremap <Leader>qq :q<Cr>
 
 " Window Navigation
@@ -54,7 +54,6 @@ nnoremap <Right> <C-w>>
 " ******************************************************
 nnoremap ; :
 vnoremap ; :
-cnoremap vt vert
 vnoremap <Leader><Leader> <Esc>
 
 " Command-line Abbreviations (Only expand at command position)
@@ -65,6 +64,7 @@ endfunction
 cnoreabbrev <expr> vrc <SID>cmdAlias('vrc', 'tabe ~/.vimrc')
 cnoreabbrev <expr> tv  <SID>cmdAlias('tv', 'tabe ~/.vimrc')
 cnoreabbrev <expr> th  <SID>cmdAlias('th', 'tab help')
+cnoreabbrev <expr> vt  <SID>cmdAlias('vt', 'vert')
 cnoreabbrev <expr> vp  (getcmdtype() ==# ':' && getcmdline() =~# '\<vp$') ? '~/.vim/' : 'vp'
 
 " ******************************************************
